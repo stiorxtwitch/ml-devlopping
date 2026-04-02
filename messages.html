@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mes messages — ML Devlopping</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .page-hero {
+      padding: 140px 5vw 60px;
+      text-align: center;
+      background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(26,61,191,0.2), transparent 70%);
+    }
+
+    .messages-wrap { max-width: 880px; margin: 0 auto; }
+
+    /* ── LOGIN CARD ── */
+    .msg-login-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 44px; text-align: center; max-width: 440px; margin: 0 auto;
+    }
+    .msg-login-card .icon { font-size: 2.5rem; margin-bottom: 14px; }
+    .msg-login-card h3 { font-family: 'Syne', sans-serif; font-size: 1.3rem; margin-bottom: 8px; }
+    .msg-login-card p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px; }
+
+    /* ── LAYOUT 2 colonnes ── */
+    .msg-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+      min-height: 560px;
+    }
+
+    /* ── SIDEBAR : liste des tickets ── */
+    .threads-sidebar {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .threads-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .threads-header h3 { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; }
+    .thread-count {
+      background: rgba(45,91,227,0.2); color: var(--accent-light);
+      border-radius: 20px; padding: 2px 10px; font-size: 0.75rem; font-weight: 700;
+    }
+    .threads-list { flex: 1; overflow-y: auto; }
+    .thread-item {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      cursor: pointer;
+      transition: background .15s;
+      position: relative;
+    }
+    .thread-item:hover { background: rgba(255,255,255,0.04); }
+    .thread-item.active { background: rgba(45,91,227,0.12); border-left: 3px solid var(--accent-light); }
+    .thread-subject {
+      font-weight: 600; font-size: 0.88rem;
+      margin-bottom: 4px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .thread-preview {
+      color: var(--text-muted); font-size: 0.78rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .thread-meta {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 6px;
+    }
+    .thread-date { color: var(--text-muted); font-size: 0.72rem; }
+    .unread-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent-light);
+    }
+
+    /* ── CONVERSATION ── */
+    .conversation-panel {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .conv-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .conv-subject { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; }
+    .conv-date { color: var(--text-muted); font-size: 0.78rem; margin-top: 3px; }
+
+    /* Messages area */
+    .messages-area {
+      flex: 1; overflow-y: auto;
+      padding: 24px;
+      display: flex; flex-direction: column; gap: 16px;
+      min-height: 340px;
+    }
+
+    /* Bulles */
+    .msg-bubble-wrap {
+      display: flex; gap: 10px;
+      animation: fadeUp .3s ease both;
+    }
+    .msg-bubble-wrap.outgoing { flex-direction: row-reverse; }
+
+    .msg-avatar {
+      width: 36px; height: 36px; min-width: 36px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 700;
+    }
+    .msg-avatar.client {
+      background: rgba(26,61,191,0.25);
+      border: 1px solid rgba(79,122,248,0.3);
+      color: var(--accent-light);
+    }
+    .msg-avatar.ml {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+    }
+
+    .msg-content { max-width: 70%; }
+    .msg-sender {
+      font-size: 0.75rem; font-weight: 600; color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+    .msg-bubble-wrap.outgoing .msg-sender { text-align: right; }
+    .msg-bubble {
+      padding: 12px 16px; border-radius: 14px;
+      font-size: 0.9rem; line-height: 1.6;
+    }
+    .msg-bubble.incoming {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+    }
+    .msg-bubble.outgoing {
+      background: linear-gradient(135deg, rgba(26,61,191,0.5), rgba(45,91,227,0.4));
+      border: 1px solid rgba(79,122,248,0.3);
+      border-bottom-right-radius: 4px;
+    }
+    .msg-time {
+      font-size: 0.7rem; color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .msg-bubble-wrap.outgoing .msg-time { text-align: right; }
+
+    /* Empty state */
+    .conv-empty {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      color: var(--text-muted); text-align: center; padding: 40px;
+    }
+    .conv-empty .icon { font-size: 3rem; margin-bottom: 14px; opacity: .5; }
+    .conv-empty h4 { font-family: 'Syne', sans-serif; font-size: 1rem; margin-bottom: 6px; color: rgba(255,255,255,0.5); }
+    .conv-empty p { font-size: 0.85rem; }
+
+    /* New message input */
+    .msg-input-area {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      display: flex; gap: 10px; align-items: flex-end;
+    }
+    .msg-input-area textarea {
+      flex: 1; resize: none;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border); border-radius: 12px;
+      color: white; padding: 12px 16px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+      min-height: 46px; max-height: 120px;
+      transition: border-color .2s;
+      line-height: 1.5;
+    }
+    .msg-input-area textarea:focus { outline: none; border-color: var(--accent-light); }
+    .msg-input-area textarea::placeholder { color: var(--text-muted); }
+    .send-btn {
+      width: 46px; height: 46px; min-width: 46px;
+      background: var(--primary); border: none; border-radius: 12px;
+      color: white; cursor: pointer; font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s, transform .15s;
+    }
+    .send-btn:hover { background: var(--accent); transform: scale(1.05); }
+    .send-btn:disabled { background: rgba(255,255,255,0.08); cursor: not-allowed; transform: none; }
+
+    /* No threads */
+    .no-threads {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 30px 20px; text-align: center;
+    }
+    .no-threads .icon { font-size: 2rem; margin-bottom: 10px; opacity: .4; }
+    .no-threads p { color: var(--text-muted); font-size: 0.82rem; line-height: 1.6; }
+
+    /* Scrollbar style */
+    .messages-area::-webkit-scrollbar,
+    .threads-list::-webkit-scrollbar { width: 4px; }
+    .messages-area::-webkit-scrollbar-track,
+    .threads-list::-webkit-scrollbar-track { background: transparent; }
+    .messages-area::-webkit-scrollbar-thumb,
+    .threads-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+    /* Status badge in header */
+    .conv-status { display: flex; align-items: center; gap: 8px; }
+
+    @media(max-width: 700px) {
+      .msg-layout { grid-template-columns: 1fr; }
+      .threads-sidebar { max-height: 220px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <span class="logo-icon">&lt;/&gt;</span>
+    <span><b>ML</b> Devlopping</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Accueil</a></li>
+    <li><a href="shop.html">Nos offres</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="messages.html" class="active">Mes messages</a></li>
+  </ul>
+  <span id="navUser" style="color:var(--text-muted);font-size:0.88rem"></span>
+</nav>
+
+<div class="page-hero">
+  <span class="section-tag">Espace client</span>
+  <h1 class="section-title">Mes <span class="text-accent">messages</span></h1>
+  <p class="section-subtitle" style="margin:0 auto;text-align:center">Retrouvez vos échanges avec l'équipe ML Devlopping.</p>
+</div>
+
+<section style="padding-top:20px">
+  <div class="messages-wrap">
+    <div id="alertBox"></div>
+
+    <!-- LOGIN -->
+    <div id="loginSection">
+      <div class="msg-login-card animate-in">
+        <div class="icon">💬</div>
+        <h3>Connectez-vous</h3>
+        <p>Accédez à vos échanges avec notre équipe.</p>
+        <div class="form-group">
+          <input type="text" id="tlUser" placeholder="Nom d'utilisateur" />
+        </div>
+        <div class="form-group" style="margin-bottom:20px">
+          <input type="password" id="tlPass" placeholder="Mot de passe" />
+        </div>
+        <button class="btn btn-primary" style="width:100%" onclick="doLogin()">Se connecter</button>
+        <p style="margin-top:16px;font-size:0.82rem;color:var(--text-muted)">
+          Pas de compte ? <a href="shop.html" style="color:var(--accent-light)">Commander</a> · 
+          <a href="contact.html" style="color:var(--accent-light)">Nous contacter</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- MESSAGES INTERFACE -->
+    <div id="messagesSection" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div>
+          <h2 style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700" id="welcomeName">Bonjour !</h2>
+          <p style="color:var(--text-muted);font-size:0.85rem">Vos discussions avec ML Devlopping</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <a href="order-confirm.html" style="color:var(--accent-light);font-size:0.85rem;text-decoration:none">📦 Mes commandes</a>
+          <button onclick="logout()" style="background:none;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);padding:8px 14px;cursor:pointer;font-size:0.82rem">Déconnexion</button>
+        </div>
+      </div>
+
+      <div class="msg-layout">
+        <!-- SIDEBAR -->
+        <div class="threads-sidebar">
+          <div class="threads-header">
+            <h3>Conversations</h3>
+            <span class="thread-count" id="threadCount">0</span>
+          </div>
+          <div class="threads-list" id="threadsList">
+            <div class="no-threads">
+              <div class="icon">📭</div>
+              <p>Aucune conversation.<br><a href="contact.html" style="color:var(--accent-light)">Envoyer un message</a></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONVERSATION PANEL -->
+        <div class="conversation-panel" id="convPanel">
+          <div class="conv-empty" id="convEmpty">
+            <div class="icon">👈</div>
+            <h4>Sélectionnez une conversation</h4>
+            <p>Choisissez un fil de discussion<br>dans la liste à gauche.</p>
+          </div>
+          <!-- Header (hidden until conversation selected) -->
+          <div id="convHeader" style="display:none">
+            <div class="conv-header">
+              <div>
+                <div class="conv-subject" id="convSubject"></div>
+                <div class="conv-date" id="convDate"></div>
+              </div>
+              <div class="conv-status">
+                <span id="convStatusBadge"></span>
+              </div>
+            </div>
+            <div class="messages-area" id="messagesArea"></div>
+            <div class="msg-input-area">
+              <textarea id="newMsgInput" placeholder="Votre message…" rows="1"
+                onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+              <button class="send-btn" onclick="sendMessage()" title="Envoyer">➤</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="index.html" class="nav-logo"><span class="logo-icon">&lt;/&gt;</span><span><b>ML</b> Devlopping</span></a>
+      <p>Le service digital au service des entreprises.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Navigation</h4>
+      <ul>
+        <li><a href="index.html">Accueil</a></li>
+        <li><a href="shop.html">Nos offres</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="messages.html">Mes messages</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="mailto:contact@ml-devlopping.fr">contact@ml-devlopping.fr</a></li>
+        <li><a href="https://ml-devlopping.fr">www.ml-devlopping.fr</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 ML Devlopping. Tous droits réservés.</p>
+  </div>
+</footer>
+
+<script>
+const SUPABASE_URL = 'https://gktawbaposndfxijkxdk.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrdGF3YmFwb3NuZGZ4aWpreGRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwNzUyNDUsImV4cCI6MjA3OTY1MTI0NX0.tY-CHuyb2zr9s6hlGkwmrdTvg920VVNghI9S45CjwKk';
+
+const STATUS_CONTACT = {
+  new:     { label: 'Nouveau',   cls: 'badge-pending' },
+  read:    { label: 'Lu',        cls: 'badge-progress' },
+  replied: { label: 'Répondu ✓', cls: 'badge-done' },
+};
+
+let currentUser = null;
+let contacts = [];
+let activeContactId = null;
+let pollInterval = null;
+
+const hdrs = {
+  'apikey': SUPABASE_KEY,
+  'Authorization': 'Bearer ' + SUPABASE_KEY,
+  'Content-Type': 'application/json',
+};
+
+// ── INIT ────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('ml_user');
+  if (saved) {
+    currentUser = JSON.parse(saved);
+    bootMessages();
+  }
+});
+
+// ── LOGIN ────────────────────────────────────
+async function doLogin() {
+  const username = document.getElementById('tlUser').value.trim();
+  const password = document.getElementById('tlPass').value;
+  if (!username || !password) return showAlert('Remplissez tous les champs.', 'error');
+
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(username)}&select=*`, { headers: hdrs });
+  const data = await res.json();
+  if (!data.length) return showAlert('Utilisateur introuvable.', 'error');
+  const user = data[0];
+  if (user.password_hash !== btoa(password)) return showAlert('Mot de passe incorrect.', 'error');
+
+  currentUser = { id: user.id, username: user.username, email: user.email, fullName: user.first_name + ' ' + user.last_name };
+  localStorage.setItem('ml_user', JSON.stringify(currentUser));
+  document.getElementById('alertBox').innerHTML = '';
+  bootMessages();
+}
+
+function logout() {
+  localStorage.removeItem('ml_user');
+  currentUser = null;
+  if (pollInterval) clearInterval(pollInterval);
+  document.getElementById('messagesSection').style.display = 'none';
+  document.getElementById('loginSection').style.display = '';
+  document.getElementById('navUser').textContent = '';
+}
+
+// ── BOOT ────────────────────────────────────
+async function bootMessages() {
+  document.getElementById('loginSection').style.display = 'none';
+  document.getElementById('messagesSection').style.display = '';
+  document.getElementById('welcomeName').textContent = `Bonjour, ${currentUser.fullName || currentUser.username} 👋`;
+  document.getElementById('navUser').textContent = currentUser.username;
+  await loadContacts();
+  // Rafraîchir toutes les 8 secondes
+  pollInterval = setInterval(async () => {
+    await loadContacts();
+    if (activeContactId) await loadMessages(activeContactId, false);
+  }, 8000);
+}
+
+// ── LOAD CONTACTS ────────────────────────────
+async function loadContacts() {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/contacts?email=eq.${encodeURIComponent(currentUser.email)}&order=created_at.desc`,
+    { headers: hdrs }
+  );
+  contacts = await res.json();
+  renderThreads();
+}
+
+function renderThreads() {
+  const list = document.getElementById('threadsList');
+  document.getElementById('threadCount').textContent = contacts.length;
+
+  if (!contacts.length) {
+    list.innerHTML = `<div class="no-threads"><div class="icon">📭</div><p>Aucune conversation.<br><a href="contact.html" style="color:var(--accent-light)">Envoyer un message</a></p></div>`;
+    return;
+  }
+
+  list.innerHTML = contacts.map(c => {
+    const date = timeAgo(c.created_at);
+    const isActive = c.id === activeContactId;
+    const hasReply = c.status === 'replied';
+    return `
+      <div class="thread-item ${isActive ? 'active' : ''}" onclick="selectThread(${c.id})">
+        <div class="thread-subject">${escHtml(c.subject)}</div>
+        <div class="thread-preview">${escHtml(c.message.slice(0, 55))}${c.message.length > 55 ? '…' : ''}</div>
+        <div class="thread-meta">
+          <span class="thread-date">${date}</span>
+          ${hasReply && !isActive ? '<span class="unread-dot"></span>' : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── SELECT THREAD ────────────────────────────
+async function selectThread(contactId) {
+  activeContactId = contactId;
+  renderThreads(); // met à jour la classe active
+  await loadMessages(contactId, true);
+}
+
+async function loadMessages(contactId, scrollDown) {
+  const contact = contacts.find(c => c.id === contactId);
+  if (!contact) return;
+
+  // Header
+  document.getElementById('convEmpty').style.display = 'none';
+  document.getElementById('convHeader').style.display = 'flex';
+  document.getElementById('convHeader').style.flexDirection = 'column';
+  document.getElementById('convSubject').textContent = contact.subject;
+  document.getElementById('convDate').textContent = 'Envoyé le ' + new Date(contact.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
+  const st = STATUS_CONTACT[contact.status] || STATUS_CONTACT.new;
+  document.getElementById('convStatusBadge').innerHTML = `<span class="badge ${st.cls}">${st.label}</span>`;
+
+  // Charger les messages de ce contact
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/discord_messages?contact_id=eq.${contactId}&order=created_at.asc`,
+    { headers: hdrs }
+  );
+  const msgs = await res.json();
+
+  const area = document.getElementById('messagesArea');
+
+  // Construire la liste : message initial (du client) + réponses
+  const allMessages = [
+    { direction: 'in', content: contact.message, created_at: contact.created_at, isOriginal: true },
+    ...msgs
+  ];
+
+  area.innerHTML = allMessages.map(m => buildBubble(m)).join('');
+
+  if (scrollDown) area.scrollTop = area.scrollHeight;
+}
+
+function buildBubble(m) {
+  const isOut = m.direction === 'in'; // 'in' = envoyé par le client = bulle droite
+  const isML  = m.direction === 'out'; // 'out' = réponse de ML = bulle gauche
+  const time = new Date(m.created_at).toLocaleString('fr-FR', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+  const avatarClass = isML ? 'ml' : 'client';
+  const avatarContent = isML ? '&lt;/&gt;' : (currentUser.fullName ? currentUser.fullName[0].toUpperCase() : '?');
+  const sender = isML ? 'ML Devlopping' : (currentUser.fullName || currentUser.username);
+  const bubbleClass = isOut ? 'outgoing' : 'incoming';
+  const wrapClass = isOut ? 'outgoing' : '';
+
+  return `
+    <div class="msg-bubble-wrap ${wrapClass}">
+      <div class="msg-avatar ${avatarClass}">${avatarContent}</div>
+      <div class="msg-content">
+        <div class="msg-sender">${escHtml(sender)}</div>
+        <div class="msg-bubble ${bubbleClass}">${escHtml(m.content)}</div>
+        <div class="msg-time">${time}</div>
+      </div>
+    </div>`;
+}
+
+// ── SEND MESSAGE (client → BDD) ──────────────
+async function sendMessage() {
+  const input = document.getElementById('newMsgInput');
+  const text = input.value.trim();
+  if (!text || !activeContactId) return;
+
+  const btn = document.querySelector('.send-btn');
+  btn.disabled = true;
+
+  // Insérer dans discord_messages direction 'in' (message client)
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/discord_messages`, {
+    method: 'POST',
+    headers: { ...hdrs, 'Prefer': 'return=representation' },
+    body: JSON.stringify({ contact_id: activeContactId, direction: 'in', content: text })
+  });
+
+  if (res.ok) {
+    input.value = '';
+    input.style.height = 'auto';
+    await loadMessages(activeContactId, true);
+    // Notifier le bot Discord
+    await fetch(`${SUPABASE_URL}/rest/v1/discord_notifications`, {
+      method: 'POST',
+      headers: hdrs,
+      body: JSON.stringify({ type: 'contact', contact_id: activeContactId, processed: false })
+    });
+  }
+  btn.disabled = false;
+}
+
+// ── HELPERS ──────────────────────────────────
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function timeAgo(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1)  return 'À l\'instant';
+  if (m < 60) return `Il y a ${m}min`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `Il y a ${h}h`;
+  const d = Math.floor(h / 24);
+  if (d < 7)  return `Il y a ${d}j`;
+  return new Date(dateStr).toLocaleDateString('fr-FR', { day:'2-digit', month:'short' });
+}
+function showAlert(msg, type) {
+  document.getElementById('alertBox').innerHTML = `<div class="alert ${type}" style="max-width:440px;margin:0 auto 20px">${msg}</div>`;
+}
+</script>
+</body>
+</html>
