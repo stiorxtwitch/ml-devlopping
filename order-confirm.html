@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Suivi de commande — ML Devlopping</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .page-hero {
+      padding: 140px 5vw 60px;
+      text-align: center;
+      background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(26,61,191,0.2), transparent 70%);
+    }
+    .tracker-wrap { max-width: 800px; margin: 0 auto; }
+
+    /* Login to track */
+    .track-login-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 40px; text-align: center; max-width: 440px; margin: 0 auto;
+    }
+    .track-login-card .icon { font-size: 2.5rem; margin-bottom: 14px; }
+    .track-login-card h3 { font-family: 'Syne', sans-serif; font-size: 1.3rem; margin-bottom: 8px; }
+    .track-login-card p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px; }
+
+    /* Order card */
+    .order-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 32px; margin-bottom: 20px;
+    }
+    .order-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 24px;
+    }
+    .order-id { color: var(--text-muted); font-size: 0.82rem; margin-bottom: 4px; }
+    .order-plan { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 700; }
+    .order-price { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--accent-light); }
+
+    /* Progress steps */
+    .progress-steps { margin: 28px 0; }
+    .steps-track {
+      display: flex; align-items: center; position: relative;
+      margin-bottom: 12px;
+    }
+    .step-item { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
+    .step-circle {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.06); border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 700; position: relative; z-index: 1;
+      transition: all .4s;
+    }
+    .step-circle.done { background: var(--primary); border-color: var(--accent); color: white; }
+    .step-circle.active { background: rgba(45,91,227,0.3); border-color: var(--accent-light); color: var(--accent-light); animation: pulse-glow 2s infinite; }
+    .step-line {
+      position: absolute; top: 18px; left: calc(50% + 18px);
+      right: calc(-50% + 18px); height: 2px;
+      background: var(--border); z-index: 0; transition: background .4s;
+    }
+    .step-line.done { background: var(--primary); }
+    .step-item:last-child .step-line { display: none; }
+    .step-labels { display: flex; }
+    .step-label { flex: 1; text-align: center; font-size: 0.72rem; color: var(--text-muted); padding-top: 8px; }
+    .step-label.active { color: var(--accent-light); font-weight: 600; }
+    .step-label.done { color: rgba(255,255,255,0.7); }
+
+    /* Message from ML -->
+    .message-box {
+      background: rgba(45,91,227,0.1); border: 1px solid rgba(79,122,248,0.3);
+      border-radius: var(--radius-sm); padding: 18px 20px; margin-top: 20px;
+    }
+    .message-box h4 { font-size: 0.85rem; color: var(--accent-light); font-weight: 600; margin-bottom: 6px; }
+    .message-box p { color: rgba(255,255,255,0.8); font-size: 0.9rem; }
+
+    /* All orders list */
+    .orders-list { margin-top: 8px; }
+    .mini-order {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 0; border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: opacity .2s;
+    }
+    .mini-order:hover { opacity: .75; }
+    .mini-order:last-child { border-bottom: none; }
+    .mini-plan { font-weight: 600; font-size: 0.92rem; }
+    .mini-date { color: var(--text-muted); font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <span class="logo-icon">&lt;/&gt;</span>
+    <span><b>ML</b> Devlopping</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Accueil</a></li>
+    <li><a href="shop.html">Nos offres</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <span id="navUser" style="color:var(--text-muted);font-size:0.88rem"></span>
+</nav>
+
+<div class="page-hero">
+  <span class="section-tag">Espace client</span>
+  <h1 class="section-title">Suivi de <span class="text-accent">commande</span></h1>
+  <p class="section-subtitle" style="margin:0 auto;text-align:center">Suivez l'avancement de votre projet en temps réel.</p>
+</div>
+
+<section style="padding-top:20px">
+  <div class="tracker-wrap">
+    <div id="alertBox"></div>
+
+    <!-- NOT LOGGED IN -->
+    <div id="loginSection">
+      <div class="track-login-card animate-in">
+        <div class="icon">🔐</div>
+        <h3>Connectez-vous</h3>
+        <p>Accédez à votre espace client pour suivre vos commandes.</p>
+        <div class="form-group">
+          <input type="text" id="tlUser" placeholder="Nom d'utilisateur" />
+        </div>
+        <div class="form-group" style="margin-bottom:20px">
+          <input type="password" id="tlPass" placeholder="Mot de passe" />
+        </div>
+        <button class="btn btn-primary" style="width:100%" onclick="doTrackLogin()">Se connecter</button>
+        <p style="margin-top:16px;font-size:0.82rem">Pas encore de compte ? <a href="shop.html" style="color:var(--accent-light)">Commander maintenant</a></p>
+      </div>
+    </div>
+
+    <!-- LOGGED IN - ORDERS -->
+    <div id="ordersSection" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+        <div>
+          <h2 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700" id="welcomeName">Bonjour !</h2>
+          <p style="color:var(--text-muted);font-size:0.88rem">Voici vos commandes en cours.</p>
+        </div>
+        <button onclick="logout()" style="background:none;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);padding:8px 16px;cursor:pointer;font-size:0.85rem">Se déconnecter</button>
+      </div>
+
+      <div id="ordersList"></div>
+    </div>
+
+    <!-- ORDER DETAIL -->
+    <div id="orderDetail" style="display:none">
+      <button onclick="backToList()" style="background:none;border:none;color:var(--accent-light);cursor:pointer;font-size:0.9rem;margin-bottom:20px;padding:0">← Retour à mes commandes</button>
+      <div class="order-card">
+        <div class="order-header">
+          <div>
+            <div class="order-id" id="detailId"></div>
+            <div class="order-plan" id="detailPlan"></div>
+          </div>
+          <div style="text-align:right">
+            <div id="detailBadge"></div>
+            <div class="order-price" id="detailPrice"></div>
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-steps">
+          <div class="steps-track" id="stepsTrack">
+            <div class="step-item" data-step="0">
+              <div class="step-circle" id="step0">📥</div>
+              <div class="step-line" id="line0"></div>
+            </div>
+            <div class="step-item" data-step="1">
+              <div class="step-circle" id="step1">⚙️</div>
+              <div class="step-line" id="line1"></div>
+            </div>
+            <div class="step-item" data-step="2">
+              <div class="step-circle" id="step2">🎨</div>
+              <div class="step-line" id="line2"></div>
+            </div>
+            <div class="step-item" data-step="3">
+              <div class="step-circle" id="step3">🔍</div>
+              <div class="step-line" id="line3"></div>
+            </div>
+            <div class="step-item" data-step="4">
+              <div class="step-circle" id="step4">✅</div>
+              <div class="step-line" id="line4"></div>
+            </div>
+          </div>
+          <div class="step-labels">
+            <span class="step-label" id="label0">Reçue</span>
+            <span class="step-label" id="label1">En cours</span>
+            <span class="step-label" id="label2">Préparation</span>
+            <span class="step-label" id="label3">Finalisation</span>
+            <span class="step-label" id="label4">Terminée</span>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px">
+          <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:14px">
+            <div style="color:var(--text-muted);font-size:0.78rem">Plan souscrit</div>
+            <div style="font-weight:600;margin-top:4px" id="detailPlan2"></div>
+          </div>
+          <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:14px">
+            <div style="color:var(--text-muted);font-size:0.78rem">Date de commande</div>
+            <div style="font-weight:600;margin-top:4px" id="detailDate"></div>
+          </div>
+        </div>
+
+        <div id="descBlock" style="display:none;margin-top:14px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:14px">
+          <div style="color:var(--text-muted);font-size:0.78rem;margin-bottom:4px">Description du projet</div>
+          <div style="font-size:0.9rem" id="detailDesc"></div>
+        </div>
+
+        <div id="mlMessageBlock" style="display:none" class="message-box">
+          <h4>💬 Message de ML Devlopping</h4>
+          <p id="mlMessage"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="index.html" class="nav-logo"><span class="logo-icon">&lt;/&gt;</span><span><b>ML</b> Devlopping</span></a>
+      <p>Le service digital au service des entreprises.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Navigation</h4>
+      <ul>
+        <li><a href="index.html">Accueil</a></li>
+        <li><a href="shop.html">Nos offres</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="mailto:contact@ml-devlopping.fr">contact@ml-devlopping.fr</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 ML Devlopping. Tous droits réservés.</p>
+  </div>
+</footer>
+
+<script>
+const SUPABASE_URL = 'https://gktawbaposndfxijkxdk.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrdGF3YmFwb3NuZGZ4aWpreGRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwNzUyNDUsImV4cCI6MjA3OTY1MTI0NX0.tY-CHuyb2zr9s6hlGkwmrdTvg920VVNghI9S45CjwKk';
+
+const STATUS_MAP = {
+  pending:      { label: 'En attente',    badge: 'badge-pending',  step: 0 },
+  en_cours:     { label: 'En cours',      badge: 'badge-progress', step: 1 },
+  preparation:  { label: 'Préparation',   badge: 'badge-prep',     step: 2 },
+  finalisation: { label: 'Finalisation',  badge: 'badge-final',    step: 3 },
+  termine:      { label: 'Terminée ✅',   badge: 'badge-done',     step: 4 }
+};
+
+let currentUser = null;
+let currentOrders = [];
+
+async function headers() {
+  return { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY };
+}
+
+// Check session on load
+window.addEventListener('DOMContentLoaded', async () => {
+  const saved = localStorage.getItem('ml_user');
+  if (saved) {
+    currentUser = JSON.parse(saved);
+    showOrders();
+  }
+  // Check URL param
+  const params = new URLSearchParams(location.search);
+  const orderId = params.get('id');
+  if (orderId && currentUser) {
+    await loadAndShowOrder(orderId);
+  }
+});
+
+async function doTrackLogin() {
+  const username = document.getElementById('tlUser').value.trim();
+  const password = document.getElementById('tlPass').value;
+  if (!username || !password) return showMainAlert('Remplissez tous les champs.', 'error');
+
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(username)}&select=*`, {
+    headers: await headers()
+  });
+  const data = await res.json();
+  if (!data.length) return showMainAlert('Utilisateur introuvable.', 'error');
+  const user = data[0];
+  if (user.password_hash !== btoa(password)) return showMainAlert('Mot de passe incorrect.', 'error');
+
+  currentUser = { id: user.id, username: user.username, email: user.email, fullName: user.first_name + ' ' + user.last_name };
+  localStorage.setItem('ml_user', JSON.stringify(currentUser));
+  document.getElementById('alertBox').innerHTML = '';
+  showOrders();
+}
+
+async function showOrders() {
+  document.getElementById('loginSection').style.display = 'none';
+  document.getElementById('ordersSection').style.display = '';
+  document.getElementById('welcomeName').textContent = `Bonjour, ${currentUser.fullName || currentUser.username} 👋`;
+  document.getElementById('navUser').textContent = currentUser.username;
+
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/orders?user_id=eq.${currentUser.id}&order=created_at.desc`, {
+    headers: await headers()
+  });
+  currentOrders = await res.json();
+  renderOrdersList();
+}
+
+function renderOrdersList() {
+  const container = document.getElementById('ordersList');
+  if (!currentOrders.length) {
+    container.innerHTML = '<div class="card" style="text-align:center;padding:40px"><div style="font-size:2rem;margin-bottom:12px">📦</div><p style="color:var(--text-muted)">Aucune commande pour l\'instant. <a href="shop.html" style="color:var(--accent-light)">Commander maintenant</a></p></div>';
+    return;
+  }
+  container.innerHTML = currentOrders.map(o => {
+    const st = STATUS_MAP[o.status] || STATUS_MAP.pending;
+    const date = new Date(o.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
+    return `<div class="order-card" onclick="showOrderDetail(${o.id})" style="cursor:pointer">
+      <div class="order-header" style="margin-bottom:16px">
+        <div>
+          <div class="order-id">Commande #${o.id}</div>
+          <div class="order-plan">${o.plan}</div>
+          <div style="color:var(--text-muted);font-size:0.8rem;margin-top:4px">${date}</div>
+        </div>
+        <div style="text-align:right">
+          <span class="badge ${st.badge}">${st.label}</span>
+          <div class="order-price" style="font-size:1.2rem;margin-top:8px">${o.price}€/mois</div>
+        </div>
+      </div>
+      <div style="color:var(--text-muted);font-size:0.82rem">Cliquez pour voir les détails →</div>
+    </div>`;
+  }).join('');
+}
+
+async function loadAndShowOrder(orderId) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/orders?id=eq.${orderId}&select=*`, {
+    headers: await headers()
+  });
+  const [order] = await res.json();
+  if (order) renderOrderDetail(order);
+}
+
+function showOrderDetail(orderId) {
+  const order = currentOrders.find(o => o.id === orderId);
+  if (!order) return;
+  renderOrderDetail(order);
+}
+
+function renderOrderDetail(order) {
+  document.getElementById('ordersSection').style.display = 'none';
+  document.getElementById('orderDetail').style.display = '';
+
+  const st = STATUS_MAP[order.status] || STATUS_MAP.pending;
+  const stepIndex = st.step;
+  const date = new Date(order.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
+
+  document.getElementById('detailId').textContent = `Commande #${order.id}`;
+  document.getElementById('detailPlan').textContent = order.plan;
+  document.getElementById('detailPlan2').textContent = order.plan;
+  document.getElementById('detailPrice').textContent = order.price + '€/mois';
+  document.getElementById('detailDate').textContent = date;
+  document.getElementById('detailBadge').innerHTML = `<span class="badge ${st.badge}">${st.label}</span>`;
+
+  // Steps
+  for (let i = 0; i <= 4; i++) {
+    const circle = document.getElementById('step' + i);
+    const line = document.getElementById('line' + i);
+    const label = document.getElementById('label' + i);
+    circle.className = 'step-circle ' + (i < stepIndex ? 'done' : i === stepIndex ? 'active' : '');
+    if (line) line.className = 'step-line ' + (i < stepIndex ? 'done' : '');
+    label.className = 'step-label ' + (i < stepIndex ? 'done' : i === stepIndex ? 'active' : '');
+  }
+
+  // Description
+  if (order.description) {
+    document.getElementById('descBlock').style.display = '';
+    document.getElementById('detailDesc').textContent = order.description;
+  }
+
+  // ML Message
+  if (order.ml_message) {
+    document.getElementById('mlMessageBlock').style.display = '';
+    document.getElementById('mlMessage').textContent = order.ml_message;
+  } else {
+    document.getElementById('mlMessageBlock').style.display = 'none';
+  }
+}
+
+function backToList() {
+  document.getElementById('orderDetail').style.display = 'none';
+  document.getElementById('ordersSection').style.display = '';
+  showOrders();
+}
+
+function logout() {
+  localStorage.removeItem('ml_user');
+  currentUser = null;
+  document.getElementById('ordersSection').style.display = 'none';
+  document.getElementById('loginSection').style.display = '';
+  document.getElementById('navUser').textContent = '';
+}
+
+function showMainAlert(msg, type) {
+  document.getElementById('alertBox').innerHTML = `<div class="alert ${type}" style="max-width:440px;margin:0 auto 20px">${msg}</div>`;
+}
+</script>
+</body>
+</html>
