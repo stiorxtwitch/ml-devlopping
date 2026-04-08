@@ -231,7 +231,7 @@
     <div class="footer-col">
       <h4>Contact</h4>
       <ul>
-        <li><a href="mailto:contact@ml-devlopping.fr">contact@ml-devlopping.fr</a></li>
+        <li><a href="/cdn-cgi/l/email-protection#14777b7a6075776054797839707162787b64647d7a733a7266"><span class="__cf_email__" data-cfemail="a4c7cbcad0c5c7d0e4c9c889c0c1d2c8cbd4d4cdcac38ac2d6">[email&#160;protected]</span></a></li>
       </ul>
     </div>
   </div>
@@ -240,7 +240,7 @@
   </div>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const SUPABASE_URL = 'https://gktawbaposndfxijkxdk.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrdGF3YmFwb3NuZGZ4aWpreGRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwNzUyNDUsImV4cCI6MjA3OTY1MTI0NX0.tY-CHuyb2zr9s6hlGkwmrdTvg920VVNghI9S45CjwKk';
 
@@ -287,7 +287,11 @@ async function doTrackLogin() {
   const user = data[0];
   if (user.password_hash !== btoa(password)) return showMainAlert('Mot de passe incorrect.', 'error');
 
-  currentUser = { id: user.id, username: user.username, email: user.email, fullName: user.first_name + ' ' + user.last_name };
+  currentUser = {
+    id: user.id, username: user.username, email: user.email,
+    fullName: user.first_name + ' ' + user.last_name,
+    discordUsername: user.discord_username || null
+  };
   localStorage.setItem('ml_user', JSON.stringify(currentUser));
   document.getElementById('alertBox').innerHTML = '';
   showOrders();
@@ -297,7 +301,9 @@ async function showOrders() {
   document.getElementById('loginSection').style.display = 'none';
   document.getElementById('ordersSection').style.display = '';
   document.getElementById('welcomeName').textContent = `Bonjour, ${currentUser.fullName || currentUser.username} 👋`;
-  document.getElementById('navUser').textContent = currentUser.username;
+  document.getElementById('navUser').textContent = currentUser.discordUsername
+    ? `${currentUser.username} · 💬 @${currentUser.discordUsername}`
+    : currentUser.username;
 
   const res = await fetch(`${SUPABASE_URL}/rest/v1/orders?user_id=eq.${currentUser.id}&order=created_at.desc`, {
     headers: await headers()
@@ -397,12 +403,4 @@ function logout() {
   currentUser = null;
   document.getElementById('ordersSection').style.display = 'none';
   document.getElementById('loginSection').style.display = '';
-  document.getElementById('navUser').textContent = '';
-}
-
-function showMainAlert(msg, type) {
-  document.getElementById('alertBox').innerHTML = `<div class="alert ${type}" style="max-width:440px;margin:0 auto 20px">${msg}</div>`;
-}
-</script>
-</body>
-</html>
+  doc

@@ -93,6 +93,15 @@
     }
     .faq-item.open .faq-answer { max-height: 200px; padding: 0 22px 18px; }
 
+    /* ── Discord hint ── */
+    .discord-hint {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: rgba(88,101,242,0.1); border: 1px solid rgba(88,101,242,0.3);
+      border-radius: 10px; padding: 12px 14px; margin-top: 6px;
+      font-size: 0.8rem; color: rgba(255,255,255,0.7); line-height: 1.5;
+    }
+    .discord-hint .dc-icon { font-size: 1rem; min-width: 18px; }
+
     @media(max-width: 900px) {
       .pricing-grid { grid-template-columns: 1fr; }
       .pricing-card.featured { transform: none; }
@@ -228,7 +237,7 @@
         <span>Comment fonctionne le suivi de commande ?</span>
         <span class="chevron">▼</span>
       </div>
-      <div class="faq-answer">Après votre commande, créez votre compte sur notre site. Vous pourrez suivre en temps réel l'avancement de votre projet depuis votre espace personnel.</div>
+      <div class="faq-answer">Après votre commande, vous recevrez un message privé Discord avec le récapitulatif. Vous serez notifié à chaque changement de statut directement sur Discord.</div>
     </div>
   </div>
 </section>
@@ -257,7 +266,7 @@
         <label>Mot de passe</label>
         <input type="password" id="loginPass" placeholder="••••••••" />
       </div>
-      <button class="btn btn-primary" style="width:100%" onclick="doLogin()">Se connecter & commander</button>
+      <button class="btn btn-primary" style="width:100%" onclick="doLogin()">Se connecter &amp; commander</button>
     </div>
 
     <!-- Register Form -->
@@ -284,11 +293,20 @@
         <label>Mot de passe</label>
         <input type="password" id="regPass" placeholder="Minimum 6 caractères" />
       </div>
+      <!-- ── DISCORD USERNAME ── -->
+      <div class="form-group">
+        <label>Nom d'utilisateur Discord <span style="color:var(--accent-light)">*</span></label>
+        <input type="text" id="regDiscord" placeholder="votre_pseudo_discord" />
+        <div class="discord-hint">
+          <span class="dc-icon">💬</span>
+          <span>Entrez votre pseudo Discord (ex : <b>jean_dupont</b>). Vous recevrez vos notifications et messages directement en DM Discord. Vous devez être membre de notre serveur.</span>
+        </div>
+      </div>
       <div class="form-group">
         <label>Description de votre projet</label>
         <textarea id="regDesc" rows="3" placeholder="Décrivez brièvement votre projet..."></textarea>
       </div>
-      <button class="btn btn-primary" style="width:100%" onclick="doRegister()">Créer mon compte & commander</button>
+      <button class="btn btn-primary" style="width:100%" onclick="doRegister()">Créer mon compte &amp; commander</button>
     </div>
   </div>
 </div>
@@ -357,34 +375,81 @@ function showAlert(msg, type) {
   el.innerHTML = `<div class="alert ${type}">${msg}</div>`;
 }
 
+function toggleFaq(el) {
+  el.parentElement.classList.toggle('open');
+}
+
+// ── Vérification Discord via Supabase (le bot expose une fonction) ──
+// On vérifie simplement que discord_username n'est pas déjà utilisé
+// La vraie vérification serveur (membre du serveur) est faite côté bot
+async function verifyDiscordUsername(username) {
+  if (!username) return { ok: false, error: 'Le nom d\'utilisateur Discord est requis.' };
+
+  // Vérifier si ce discord_username est déjà lié à un compte
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/users?discord_username=eq.${encodeURIComponent(username)}&select=id`,
+    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
+  );
+  const data = await res.json();
+  if (data.length > 0) {
+    return { ok: false, error: 'Ce compte Discord est déjà lié à un compte existant.' };
+  }
+  return { ok: true };
+}
+
 async function doLogin() {
   const username = document.getElementById('loginUser').value.trim();
   const password = document.getElementById('loginPass').value;
   if (!username || !password) return showAlert('Remplissez tous les champs.', 'error');
 
+  const btn = event.currentTarget;
+  btn.textContent = 'Connexion...'; btn.disabled = true;
+
   const res = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(username)}&select=*`, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
   });
   const data = await res.json();
-  if (!data.length) return showAlert('Utilisateur introuvable.', 'error');
+  if (!data.length) {
+    btn.textContent = 'Se connecter & commander'; btn.disabled = false;
+    return showAlert('Utilisateur introuvable.', 'error');
+  }
 
   const user = data[0];
-  // Simple password check (in production use proper hashing)
-  if (user.password_hash !== btoa(password)) return showAlert('Mot de passe incorrect.', 'error');
+  if (user.password_hash !== btoa(password)) {
+    btn.textContent = 'Se connecter & commander'; btn.disabled = false;
+    return showAlert('Mot de passe incorrect.', 'error');
+  }
 
-  // Create order
-  await createOrder(user.id, user.username, user.email, user.first_name + ' ' + user.last_name);
+  await createOrder(user.id, user.username, user.email, user.first_name + ' ' + user.last_name, '', user.discord_username);
+  btn.textContent = 'Se connecter & commander'; btn.disabled = false;
 }
 
 async function doRegister() {
-  const first = document.getElementById('regFirst').value.trim();
-  const last = document.getElementById('regLast').value.trim();
-  const email = document.getElementById('regEmail').value.trim();
-  const username = document.getElementById('regUser').value.trim();
-  const password = document.getElementById('regPass').value;
-  const desc = document.getElementById('regDesc').value.trim();
-  if (!first || !last || !email || !username || !password) return showAlert('Remplissez tous les champs obligatoires.', 'error');
+  const first       = document.getElementById('regFirst').value.trim();
+  const last        = document.getElementById('regLast').value.trim();
+  const email       = document.getElementById('regEmail').value.trim();
+  const username    = document.getElementById('regUser').value.trim();
+  const password    = document.getElementById('regPass').value;
+  const discordUser = document.getElementById('regDiscord').value.trim();
+  const desc        = document.getElementById('regDesc').value.trim();
+
+  if (!first || !last || !email || !username || !password || !discordUser) {
+    return showAlert('Remplissez tous les champs obligatoires, y compris le pseudo Discord.', 'error');
+  }
   if (password.length < 6) return showAlert('Mot de passe trop court (min 6 caractères).', 'error');
+
+  const btn = event.currentTarget;
+  btn.textContent = 'Vérification Discord...'; btn.disabled = true;
+
+  // Vérification discord_username unique
+  const check = await verifyDiscordUsername(discordUser);
+  if (!check.ok) {
+    showAlert(check.error, 'error');
+    btn.textContent = 'Créer mon compte & commander'; btn.disabled = false;
+    return;
+  }
+
+  btn.textContent = 'Création du compte...';
 
   // Create user
   const res = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
@@ -393,18 +458,28 @@ async function doRegister() {
       'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY,
       'Content-Type': 'application/json', 'Prefer': 'return=representation'
     },
-    body: JSON.stringify({ first_name: first, last_name: last, email, username, password_hash: btoa(password) })
+    body: JSON.stringify({
+      first_name: first, last_name: last, email, username,
+      password_hash: btoa(password), discord_username: discordUser
+    })
   });
+
   if (!res.ok) {
     const err = await res.json();
-    if (err.code === '23505') return showAlert('Ce nom d\'utilisateur ou email existe déjà.', 'error');
-    return showAlert('Erreur lors de la création du compte.', 'error');
+    if (err.code === '23505') {
+      showAlert('Ce nom d\'utilisateur ou email existe déjà.', 'error');
+    } else {
+      showAlert('Erreur lors de la création du compte.', 'error');
+    }
+    btn.textContent = 'Créer mon compte & commander'; btn.disabled = false;
+    return;
   }
   const [user] = await res.json();
-  await createOrder(user.id, username, email, first + ' ' + last, desc);
+  await createOrder(user.id, username, email, first + ' ' + last, desc, discordUser);
+  btn.textContent = 'Créer mon compte & commander'; btn.disabled = false;
 }
 
-async function createOrder(userId, username, email, fullName, description = '') {
+async function createOrder(userId, username, email, fullName, description = '', discordUsername = '') {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
     method: 'POST',
     headers: {
@@ -414,7 +489,8 @@ async function createOrder(userId, username, email, fullName, description = '') 
     body: JSON.stringify({
       user_id: userId, plan: currentPlan, price: parseInt(currentPrice),
       status: 'pending', description, client_name: fullName,
-      client_email: email, client_username: username
+      client_email: email, client_username: username,
+      discord_username: discordUsername
     })
   });
   if (!res.ok) return showAlert('Erreur lors de la commande.', 'error');
@@ -431,14 +507,12 @@ async function createOrder(userId, username, email, fullName, description = '') 
   });
 
   // Save session
-  localStorage.setItem('ml_user', JSON.stringify({ id: userId, username, email, fullName }));
-  closeOrder();
-  window.location.href = `order-confirm.html?id=${order.id}`;
-}
+  localStorage.setItem('ml_user', JSON.stringify({
+    id: userId, username, email, fullName
+  }));
 
-function toggleFaq(el) {
-  const item = el.closest('.faq-item');
-  item.classList.toggle('open');
+  showAlert('✅ Commande passée ! Vérifiez vos DM Discord pour le récapitulatif. Vous pouvez fermer cette fenêtre.', 'success');
+  setTimeout(() => { closeOrder(); window.location.href = 'order-confirm.html'; }, 2800);
 }
 </script>
 </body>

@@ -50,6 +50,14 @@
     }
     .contact-form-card > p { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 28px; }
 
+    .discord-hint {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: rgba(88,101,242,0.1); border: 1px solid rgba(88,101,242,0.3);
+      border-radius: 10px; padding: 12px 14px; margin-top: 6px;
+      font-size: 0.8rem; color: rgba(255,255,255,0.7); line-height: 1.5;
+    }
+    .discord-hint .dc-icon { font-size: 1rem; min-width: 18px; }
+
     @media(max-width: 768px) {
       .contact-grid { grid-template-columns: 1fr; }
     }
@@ -110,6 +118,13 @@
             <p>Sous 24h en moyenne</p>
           </div>
         </div>
+        <div class="contact-detail">
+          <div class="icon">💬</div>
+          <div>
+            <h4>Discord</h4>
+            <p>Recevez nos réponses directement en DM Discord !</p>
+          </div>
+        </div>
       </div>
 
       <!-- Already a client? -->
@@ -142,6 +157,17 @@
         <label>Email *</label>
         <input type="email" id="cEmail" placeholder="jean@email.com" />
       </div>
+
+      <!-- ── DISCORD USERNAME ── -->
+      <div class="form-group">
+        <label>Pseudo Discord * <span style="color:var(--accent-light);font-size:0.78rem">(pour recevoir notre réponse en DM)</span></label>
+        <input type="text" id="cDiscord" placeholder="votre_pseudo_discord" />
+        <div class="discord-hint">
+          <span class="dc-icon">💬</span>
+          <span>Entrez votre pseudo Discord pour recevoir nos réponses directement en message privé. Vous devez être membre de notre serveur Discord.</span>
+        </div>
+      </div>
+
       <div class="form-group">
         <label>Objet *</label>
         <select id="cSubject">
@@ -197,15 +223,16 @@ const SUPABASE_URL = 'https://gktawbaposndfxijkxdk.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrdGF3YmFwb3NuZGZ4aWpreGRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwNzUyNDUsImV4cCI6MjA3OTY1MTI0NX0.tY-CHuyb2zr9s6hlGkwmrdTvg920VVNghI9S45CjwKk';
 
 async function sendContact() {
-  const first = document.getElementById('cFirst').value.trim();
-  const last = document.getElementById('cLast').value.trim();
-  const email = document.getElementById('cEmail').value.trim();
-  const subject = document.getElementById('cSubject').value;
-  const message = document.getElementById('cMessage').value.trim();
-  const alertEl = document.getElementById('contactAlert');
+  const first      = document.getElementById('cFirst').value.trim();
+  const last       = document.getElementById('cLast').value.trim();
+  const email      = document.getElementById('cEmail').value.trim();
+  const discord    = document.getElementById('cDiscord').value.trim();
+  const subject    = document.getElementById('cSubject').value;
+  const message    = document.getElementById('cMessage').value.trim();
+  const alertEl    = document.getElementById('contactAlert');
 
-  if (!first || !last || !email || !subject || !message) {
-    alertEl.innerHTML = '<div class="alert error">Veuillez remplir tous les champs obligatoires.</div>';
+  if (!first || !last || !email || !discord || !subject || !message) {
+    alertEl.innerHTML = '<div class="alert error">Veuillez remplir tous les champs obligatoires, y compris le pseudo Discord.</div>';
     return;
   }
   if (!email.includes('@')) {
@@ -222,7 +249,11 @@ async function sendContact() {
       'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY,
       'Content-Type': 'application/json', 'Prefer': 'return=representation'
     },
-    body: JSON.stringify({ first_name: first, last_name: last, email, subject, message, status: 'new' })
+    body: JSON.stringify({
+      first_name: first, last_name: last, email,
+      discord_username: discord,
+      subject, message, status: 'new'
+    })
   });
 
   if (!res.ok) {
@@ -242,8 +273,8 @@ async function sendContact() {
     body: JSON.stringify({ type: 'contact', contact_id: contact.id, processed: false })
   });
 
-  alertEl.innerHTML = '<div class="alert success">✅ Message envoyé ! Nous vous répondrons sous 24h.</div>';
-  ['cFirst','cLast','cEmail','cMessage'].forEach(id => document.getElementById(id).value = '');
+  alertEl.innerHTML = '<div class="alert success">✅ Message envoyé ! Vous recevrez notre réponse en DM Discord sous 24h.</div>';
+  ['cFirst','cLast','cEmail','cDiscord','cMessage'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('cSubject').value = '';
   btn.textContent = 'Envoyer le message ✉️'; btn.disabled = false;
 }
