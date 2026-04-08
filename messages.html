@@ -391,7 +391,7 @@ async function doLogin() {
   const user = data[0];
   if (user.password_hash !== btoa(password)) return showAlert('Mot de passe incorrect.', 'error');
 
-  currentUser = { id: user.id, username: user.username, email: user.email, fullName: user.first_name + ' ' + user.last_name };
+  currentUser = { id: user.id, username: user.username, email: user.email, fullName: user.first_name + ' ' + user.last_name, discordUsername: user.discord_username || null };
   localStorage.setItem('ml_user', JSON.stringify(currentUser));
   document.getElementById('alertBox').innerHTML = '';
   bootMessages();
@@ -411,7 +411,9 @@ async function bootMessages() {
   document.getElementById('loginSection').style.display = 'none';
   document.getElementById('messagesSection').style.display = '';
   document.getElementById('welcomeName').textContent = `Bonjour, ${currentUser.fullName || currentUser.username} 👋`;
-  document.getElementById('navUser').textContent = currentUser.username;
+  document.getElementById('navUser').textContent = currentUser.discordUsername
+  ? `${currentUser.username} · 💬 @${currentUser.discordUsername}`
+  : currentUser.username;
   await loadContacts();
   // Rafraîchir toutes les 8 secondes
   pollInterval = setInterval(async () => {
