@@ -12,8 +12,6 @@
       background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(26,61,191,0.2), transparent 70%);
     }
     .tracker-wrap { max-width: 800px; margin: 0 auto; }
-
-    /* Login to track */
     .track-login-card {
       background: rgba(255,255,255,0.04);
       border: 1px solid var(--border); border-radius: var(--radius);
@@ -22,8 +20,6 @@
     .track-login-card .icon { font-size: 2.5rem; margin-bottom: 14px; }
     .track-login-card h3 { font-family: 'Syne', sans-serif; font-size: 1.3rem; margin-bottom: 8px; }
     .track-login-card p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px; }
-
-    /* Order card */
     .order-card {
       background: rgba(255,255,255,0.04);
       border: 1px solid var(--border); border-radius: var(--radius);
@@ -36,8 +32,6 @@
     .order-id { color: var(--text-muted); font-size: 0.82rem; margin-bottom: 4px; }
     .order-plan { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 700; }
     .order-price { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--accent-light); }
-
-    /* Progress steps */
     .progress-steps { margin: 28px 0; }
     .steps-track {
       display: flex; align-items: center; position: relative;
@@ -64,17 +58,12 @@
     .step-label { flex: 1; text-align: center; font-size: 0.72rem; color: var(--text-muted); padding-top: 8px; }
     .step-label.active { color: var(--accent-light); font-weight: 600; }
     .step-label.done { color: rgba(255,255,255,0.7); }
-
-    /* Message from ML -->
     .message-box {
       background: rgba(45,91,227,0.1); border: 1px solid rgba(79,122,248,0.3);
       border-radius: var(--radius-sm); padding: 18px 20px; margin-top: 20px;
     }
     .message-box h4 { font-size: 0.85rem; color: var(--accent-light); font-weight: 600; margin-bottom: 6px; }
     .message-box p { color: rgba(255,255,255,0.8); font-size: 0.9rem; }
-
-    /* All orders list */
-    .orders-list { margin-top: 8px; }
     .mini-order {
       display: flex; justify-content: space-between; align-items: center;
       padding: 14px 0; border-bottom: 1px solid var(--border);
@@ -123,7 +112,7 @@
         <div class="form-group" style="margin-bottom:20px">
           <input type="password" id="tlPass" placeholder="Mot de passe" />
         </div>
-        <button class="btn btn-primary" style="width:100%" onclick="doTrackLogin()">Se connecter</button>
+        <button class="btn btn-primary" style="width:100%" onclick="doTrackLogin(event)">Se connecter</button>
         <p style="margin-top:16px;font-size:0.82rem">Pas encore de compte ? <a href="shop.html" style="color:var(--accent-light)">Commander maintenant</a></p>
       </div>
     </div>
@@ -137,7 +126,6 @@
         </div>
         <button onclick="logout()" style="background:none;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);padding:8px 16px;cursor:pointer;font-size:0.85rem">Se déconnecter</button>
       </div>
-
       <div id="ordersList"></div>
     </div>
 
@@ -156,7 +144,6 @@
           </div>
         </div>
 
-        <!-- Progress -->
         <div class="progress-steps">
           <div class="steps-track" id="stepsTrack">
             <div class="step-item" data-step="0">
@@ -231,7 +218,7 @@
     <div class="footer-col">
       <h4>Contact</h4>
       <ul>
-        <li><a href="/cdn-cgi/l/email-protection#14777b7a6075776054797839707162787b64647d7a733a7266"><span class="__cf_email__" data-cfemail="a4c7cbcad0c5c7d0e4c9c889c0c1d2c8cbd4d4cdcac38ac2d6">[email&#160;protected]</span></a></li>
+        <li><a href="mailto:contact@ml-devlopping.fr">contact@ml-devlopping.fr</a></li>
       </ul>
     </div>
   </div>
@@ -240,9 +227,14 @@
   </div>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 const SUPABASE_URL = 'https://gktawbaposndfxijkxdk.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrdGF3YmFwb3NuZGZ4aWpreGRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwNzUyNDUsImV4cCI6MjA3OTY1MTI0NX0.tY-CHuyb2zr9s6hlGkwmrdTvg920VVNghI9S45CjwKk';
+
+const SB_HEADERS = {
+  'apikey': SUPABASE_KEY,
+  'Authorization': 'Bearer ' + SUPABASE_KEY,
+};
 
 const STATUS_MAP = {
   pending:      { label: 'En attente',    badge: 'badge-pending',  step: 0 },
@@ -255,61 +247,100 @@ const STATUS_MAP = {
 let currentUser = null;
 let currentOrders = [];
 
-async function headers() {
-  return { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY };
-}
-
-// Check session on load
 window.addEventListener('DOMContentLoaded', async () => {
   const saved = localStorage.getItem('ml_user');
   if (saved) {
-    currentUser = JSON.parse(saved);
-    showOrders();
-  }
-  // Check URL param
-  const params = new URLSearchParams(location.search);
-  const orderId = params.get('id');
-  if (orderId && currentUser) {
-    await loadAndShowOrder(orderId);
+    try {
+      currentUser = JSON.parse(saved);
+      await showOrders();
+
+      // Vérifier si un ID de commande est passé en paramètre
+      const params = new URLSearchParams(location.search);
+      const orderId = params.get('id');
+      if (orderId) {
+        await loadAndShowOrder(parseInt(orderId));
+      }
+    } catch (err) {
+      console.error('Erreur init:', err);
+      localStorage.removeItem('ml_user');
+    }
   }
 });
 
-async function doTrackLogin() {
+// FIX: Passer event en paramètre
+async function doTrackLogin(e) {
+  const btn = e.currentTarget;
   const username = document.getElementById('tlUser').value.trim();
   const password = document.getElementById('tlPass').value;
   if (!username || !password) return showMainAlert('Remplissez tous les champs.', 'error');
 
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(username)}&select=*`, {
-    headers: await headers()
-  });
-  const data = await res.json();
-  if (!data.length) return showMainAlert('Utilisateur introuvable.', 'error');
-  const user = data[0];
-  if (user.password_hash !== btoa(password)) return showMainAlert('Mot de passe incorrect.', 'error');
+  btn.textContent = 'Connexion...';
+  btn.disabled = true;
 
-  currentUser = {
-    id: user.id, username: user.username, email: user.email,
-    fullName: user.first_name + ' ' + user.last_name,
-    discordUsername: user.discord_username || null
-  };
-  localStorage.setItem('ml_user', JSON.stringify(currentUser));
-  document.getElementById('alertBox').innerHTML = '';
-  showOrders();
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(username)}&select=*`,
+      { headers: SB_HEADERS }
+    );
+    const data = await res.json();
+
+    if (!data.length) {
+      showMainAlert('Utilisateur introuvable.', 'error');
+      btn.textContent = 'Se connecter';
+      btn.disabled = false;
+      return;
+    }
+
+    const user = data[0];
+    if (user.password_hash !== btoa(password)) {
+      showMainAlert('Mot de passe incorrect.', 'error');
+      btn.textContent = 'Se connecter';
+      btn.disabled = false;
+      return;
+    }
+
+    currentUser = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      fullName: (user.first_name || '') + ' ' + (user.last_name || ''),
+      discordUsername: user.discord_username || null
+    };
+    localStorage.setItem('ml_user', JSON.stringify(currentUser));
+    document.getElementById('alertBox').innerHTML = '';
+    await showOrders();
+
+  } catch (err) {
+    showMainAlert('Erreur de connexion. Réessayez.', 'error');
+    console.error(err);
+  }
+
+  btn.textContent = 'Se connecter';
+  btn.disabled = false;
+}
+
+function showMainAlert(msg, type) {
+  document.getElementById('alertBox').innerHTML = `<div class="alert ${type}">${msg}</div>`;
 }
 
 async function showOrders() {
   document.getElementById('loginSection').style.display = 'none';
   document.getElementById('ordersSection').style.display = '';
-  document.getElementById('welcomeName').textContent = `Bonjour, ${currentUser.fullName || currentUser.username} 👋`;
+  document.getElementById('welcomeName').textContent = `Bonjour, ${currentUser.fullName?.trim() || currentUser.username} 👋`;
   document.getElementById('navUser').textContent = currentUser.discordUsername
     ? `${currentUser.username} · 💬 @${currentUser.discordUsername}`
     : currentUser.username;
 
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/orders?user_id=eq.${currentUser.id}&order=created_at.desc`, {
-    headers: await headers()
-  });
-  currentOrders = await res.json();
-  renderOrdersList();
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/orders?user_id=eq.${currentUser.id}&order=created_at.desc`,
+      { headers: SB_HEADERS }
+    );
+    currentOrders = await res.json();
+    renderOrdersList();
+  } catch (err) {
+    console.error('Erreur chargement commandes:', err);
+  }
 }
 
 function renderOrdersList() {
@@ -339,17 +370,21 @@ function renderOrdersList() {
 }
 
 async function loadAndShowOrder(orderId) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/orders?id=eq.${orderId}&select=*`, {
-    headers: await headers()
-  });
-  const [order] = await res.json();
-  if (order) renderOrderDetail(order);
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/orders?id=eq.${orderId}&user_id=eq.${currentUser.id}&select=*`,
+      { headers: SB_HEADERS }
+    );
+    const data = await res.json();
+    if (data.length) renderOrderDetail(data[0]);
+  } catch (err) {
+    console.error('Erreur chargement commande:', err);
+  }
 }
 
 function showOrderDetail(orderId) {
   const order = currentOrders.find(o => o.id === orderId);
-  if (!order) return;
-  renderOrderDetail(order);
+  if (order) renderOrderDetail(order);
 }
 
 function renderOrderDetail(order) {
@@ -367,23 +402,22 @@ function renderOrderDetail(order) {
   document.getElementById('detailDate').textContent = date;
   document.getElementById('detailBadge').innerHTML = `<span class="badge ${st.badge}">${st.label}</span>`;
 
-  // Steps
   for (let i = 0; i <= 4; i++) {
     const circle = document.getElementById('step' + i);
-    const line = document.getElementById('line' + i);
-    const label = document.getElementById('label' + i);
+    const line   = document.getElementById('line' + i);
+    const label  = document.getElementById('label' + i);
     circle.className = 'step-circle ' + (i < stepIndex ? 'done' : i === stepIndex ? 'active' : '');
     if (line) line.className = 'step-line ' + (i < stepIndex ? 'done' : '');
     label.className = 'step-label ' + (i < stepIndex ? 'done' : i === stepIndex ? 'active' : '');
   }
 
-  // Description
   if (order.description) {
     document.getElementById('descBlock').style.display = '';
     document.getElementById('detailDesc').textContent = order.description;
+  } else {
+    document.getElementById('descBlock').style.display = 'none';
   }
 
-  // ML Message
   if (order.ml_message) {
     document.getElementById('mlMessageBlock').style.display = '';
     document.getElementById('mlMessage').textContent = order.ml_message;
@@ -401,6 +435,13 @@ function backToList() {
 function logout() {
   localStorage.removeItem('ml_user');
   currentUser = null;
+  currentOrders = [];
   document.getElementById('ordersSection').style.display = 'none';
+  document.getElementById('orderDetail').style.display = 'none';
   document.getElementById('loginSection').style.display = '';
-  doc
+  document.getElementById('navUser').textContent = '';
+  document.getElementById('alertBox').innerHTML = '';
+}
+</script>
+</body>
+</html>

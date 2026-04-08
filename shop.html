@@ -11,7 +11,6 @@
       text-align: center;
       background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(26,61,191,0.2), transparent 70%);
     }
-    /* ── PRICING ── */
     .pricing-grid {
       display: grid; grid-template-columns: repeat(3, 1fr);
       gap: 24px; max-width: 1100px; margin: 60px auto 0;
@@ -45,18 +44,9 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 1.5rem; margin-bottom: 16px;
     }
-    .plan-name {
-      font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800;
-      margin-bottom: 8px;
-    }
-    .plan-price {
-      display: flex; align-items: baseline; gap: 4px;
-      margin-bottom: 6px;
-    }
-    .plan-price .amount {
-      font-family: 'Syne', sans-serif; font-size: 2.8rem; font-weight: 800;
-      color: var(--accent-light);
-    }
+    .plan-name { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800; margin-bottom: 8px; }
+    .plan-price { display: flex; align-items: baseline; gap: 4px; margin-bottom: 6px; }
+    .plan-price .amount { font-family: 'Syne', sans-serif; font-size: 2.8rem; font-weight: 800; color: var(--accent-light); }
     .plan-price .currency { font-size: 1.4rem; font-weight: 700; color: var(--accent-light); }
     .plan-price .period { color: var(--text-muted); font-size: 0.88rem; }
     .plan-desc { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px; line-height: 1.5; }
@@ -69,19 +59,13 @@
     .plan-features li:last-child { border-bottom: none; }
     .plan-features li .fi { color: #4ade80; font-size: 0.8rem; }
     .plan-features li .fi-x { color: #f87171; font-size: 0.8rem; }
-
-    /* ── FAQ ── */
     .faq-section { max-width: 760px; margin: 0 auto; }
-    .faq-item {
-      border: 1px solid var(--border); border-radius: var(--radius-sm);
-      margin-bottom: 12px; overflow: hidden;
-    }
+    .faq-item { border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 12px; overflow: hidden; }
     .faq-question {
       padding: 18px 22px; cursor: pointer;
       display: flex; justify-content: space-between; align-items: center;
       font-weight: 600; font-size: 0.95rem;
-      background: rgba(255,255,255,0.03);
-      transition: background .2s;
+      background: rgba(255,255,255,0.03); transition: background .2s;
     }
     .faq-question:hover { background: rgba(255,255,255,0.06); }
     .faq-question .chevron { transition: transform .3s; font-size: 0.8rem; }
@@ -92,8 +76,6 @@
       color: var(--text-muted); font-size: 0.9rem; line-height: 1.7;
     }
     .faq-item.open .faq-answer { max-height: 200px; padding: 0 22px 18px; }
-
-    /* ── Discord hint ── */
     .discord-hint {
       display: flex; align-items: flex-start; gap: 10px;
       background: rgba(88,101,242,0.1); border: 1px solid rgba(88,101,242,0.3);
@@ -101,18 +83,8 @@
       font-size: 0.8rem; color: rgba(255,255,255,0.7); line-height: 1.5;
     }
     .discord-hint .dc-icon { font-size: 1rem; min-width: 18px; }
-
-    /* ── FIX MODAL SCROLL ── */
-    .modal-overlay {
-      align-items: flex-start !important;
-      overflow-y: auto !important;
-      padding: 40px 16px !important;
-    }
-    .modal {
-      margin: auto;
-      max-height: none !important;
-    }
-
+    .modal-overlay { align-items: flex-start !important; overflow-y: auto !important; padding: 40px 16px !important; }
+    .modal { margin: auto; max-height: none !important; }
     @media(max-width: 900px) {
       .pricing-grid { grid-template-columns: 1fr; }
       .pricing-card.featured { transform: none; }
@@ -134,24 +106,19 @@
   <a href="contact.html" class="nav-cta">Contact →</a>
 </nav>
 
-<!-- PAGE HERO -->
 <div class="page-hero">
   <span class="section-tag">Tarifs transparents</span>
   <h1 class="section-title">Nos <span class="text-accent">Tarifs</span></h1>
   <p class="section-subtitle" style="margin:0 auto;text-align:center">Des solutions flexibles et abordables pour accompagner la croissance de votre entreprise.</p>
 </div>
 
-<!-- PRICING -->
 <section style="padding-top:20px">
   <div class="pricing-grid">
-    <!-- ESSENTIEL -->
     <div class="pricing-card animate-in">
       <div class="plan-icon">🎯</div>
       <div class="plan-name">Essentiel</div>
       <div class="plan-price">
-        <span class="currency">€</span>
-        <span class="amount">249</span>
-        <span class="period">/mois</span>
+        <span class="currency">€</span><span class="amount">249</span><span class="period">/mois</span>
       </div>
       <p class="plan-desc">Idéal pour démarrer votre présence en ligne avec un site professionnel.</p>
       <ul class="plan-features">
@@ -165,15 +132,12 @@
       <button class="btn btn-outline" style="width:100%" onclick="openOrder('Essentiel','249')">Choisir ce plan</button>
     </div>
 
-    <!-- ADVANCED -->
     <div class="pricing-card featured animate-in delay-1">
       <div class="best-badge">⭐ Meilleur choix</div>
       <div class="plan-icon">🚀</div>
       <div class="plan-name">Advanced</div>
       <div class="plan-price">
-        <span class="currency">€</span>
-        <span class="amount">449</span>
-        <span class="period">/mois</span>
+        <span class="currency">€</span><span class="amount">449</span><span class="period">/mois</span>
       </div>
       <p class="plan-desc">La solution complète pour développer votre activité avec des outils puissants.</p>
       <ul class="plan-features">
@@ -187,14 +151,11 @@
       <button class="btn btn-primary" style="width:100%" onclick="openOrder('Advanced','449')">Choisir ce plan</button>
     </div>
 
-    <!-- PRO -->
     <div class="pricing-card animate-in delay-2">
       <div class="plan-icon">⚙️</div>
       <div class="plan-name">Pro</div>
       <div class="plan-price">
-        <span class="currency">€</span>
-        <span class="amount">749</span>
-        <span class="period">/mois</span>
+        <span class="currency">€</span><span class="amount">749</span><span class="period">/mois</span>
       </div>
       <p class="plan-desc">Pour les entreprises qui veulent le meilleur — sans compromis.</p>
       <ul class="plan-features">
@@ -209,13 +170,11 @@
     </div>
   </div>
 
-  <!-- CTA below pricing -->
   <div style="text-align:center;margin-top:50px;max-width:1100px;margin-left:auto;margin-right:auto">
     <p style="color:var(--text-muted);font-size:0.9rem">Besoin d'une offre personnalisée ? <a href="contact.html" style="color:var(--accent-light)">Contactez-nous</a></p>
   </div>
 </section>
 
-<!-- FAQ -->
 <section>
   <div style="max-width:760px;margin:0 auto;text-align:center;margin-bottom:40px">
     <span class="section-tag">Questions fréquentes</span>
@@ -224,29 +183,25 @@
   <div class="faq-section">
     <div class="faq-item">
       <div class="faq-question" onclick="toggleFaq(this)">
-        <span>Puis-je changer de plan en cours de route ?</span>
-        <span class="chevron">▼</span>
+        <span>Puis-je changer de plan en cours de route ?</span><span class="chevron">▼</span>
       </div>
       <div class="faq-answer">Oui, vous pouvez upgrader ou downgrader votre plan à tout moment. Contactez-nous et nous nous occuperons de la transition.</div>
     </div>
     <div class="faq-item">
       <div class="faq-question" onclick="toggleFaq(this)">
-        <span>Quel est le délai de réalisation d'un site ?</span>
-        <span class="chevron">▼</span>
+        <span>Quel est le délai de réalisation d'un site ?</span><span class="chevron">▼</span>
       </div>
       <div class="faq-answer">En fonction de la complexité, un site vitrine est livré en 1 à 2 semaines. Un site e-commerce ou sur mesure peut prendre 3 à 6 semaines.</div>
     </div>
     <div class="faq-item">
       <div class="faq-question" onclick="toggleFaq(this)">
-        <span>Le paiement est-il mensuel ou annuel ?</span>
-        <span class="chevron">▼</span>
+        <span>Le paiement est-il mensuel ou annuel ?</span><span class="chevron">▼</span>
       </div>
       <div class="faq-answer">Nos tarifs sont affichés par mois. Nous proposons également des remises pour les engagements annuels — contactez-nous pour en savoir plus.</div>
     </div>
     <div class="faq-item">
       <div class="faq-question" onclick="toggleFaq(this)">
-        <span>Comment fonctionne le suivi de commande ?</span>
-        <span class="chevron">▼</span>
+        <span>Comment fonctionne le suivi de commande ?</span><span class="chevron">▼</span>
       </div>
       <div class="faq-answer">Après votre commande, vous recevrez un message privé Discord avec le récapitulatif. Vous serez notifié à chaque changement de statut directement sur Discord.</div>
     </div>
@@ -261,7 +216,6 @@
     <p>Créez votre compte pour accéder au suivi de commande. <strong style="color:var(--accent-light)" id="modalPlanPrice"></strong>/mois</p>
     <div id="orderAlert"></div>
 
-    <!-- Tabs -->
     <div style="display:flex;gap:0;margin-bottom:22px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden">
       <button id="tabLogin" onclick="switchTab('login')" style="flex:1;padding:11px;background:var(--primary);color:white;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.88rem">Connexion</button>
       <button id="tabRegister" onclick="switchTab('register')" style="flex:1;padding:11px;background:transparent;color:var(--text-muted);border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.88rem">Créer un compte</button>
@@ -277,7 +231,7 @@
         <label>Mot de passe</label>
         <input type="password" id="loginPass" placeholder="••••••••" />
       </div>
-      <button class="btn btn-primary" style="width:100%" onclick="doLogin()">Se connecter &amp; commander</button>
+      <button class="btn btn-primary" style="width:100%" onclick="doLogin(event)">Se connecter &amp; commander</button>
     </div>
 
     <!-- Register Form -->
@@ -304,20 +258,19 @@
         <label>Mot de passe</label>
         <input type="password" id="regPass" placeholder="Minimum 6 caractères" />
       </div>
-      <!-- ── DISCORD USERNAME ── -->
       <div class="form-group">
         <label>Nom d'utilisateur Discord <span style="color:var(--accent-light)">*</span></label>
         <input type="text" id="regDiscord" placeholder="votre_pseudo_discord" />
         <div class="discord-hint">
           <span class="dc-icon">💬</span>
-          <span>Entrez votre pseudo Discord (ex : <b>jean_dupont</b>). Vous recevrez vos notifications et messages directement en DM Discord. Vous devez être membre de notre serveur.</span>
+          <span>Entrez votre pseudo Discord (ex : <b>jean_dupont</b>). Vous recevrez vos notifications et messages directement en DM. Vous devez être membre de notre serveur.</span>
         </div>
       </div>
       <div class="form-group">
         <label>Description de votre projet</label>
         <textarea id="regDesc" rows="3" placeholder="Décrivez brièvement votre projet..."></textarea>
       </div>
-      <button class="btn btn-primary" style="width:100%" onclick="doRegister()">Créer mon compte &amp; commander</button>
+      <button class="btn btn-primary" style="width:100%" onclick="doRegister(event)">Créer mon compte &amp; commander</button>
     </div>
   </div>
 </div>
@@ -354,6 +307,12 @@
 const SUPABASE_URL = 'https://gktawbaposndfxijkxdk.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrdGF3YmFwb3NuZGZ4aWpreGRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwNzUyNDUsImV4cCI6MjA3OTY1MTI0NX0.tY-CHuyb2zr9s6hlGkwmrdTvg920VVNghI9S45CjwKk';
 
+const SB_HEADERS = {
+  'apikey': SUPABASE_KEY,
+  'Authorization': 'Bearer ' + SUPABASE_KEY,
+  'Content-Type': 'application/json',
+};
+
 let currentPlan = '', currentPrice = '';
 
 function openOrder(plan, price) {
@@ -385,40 +344,45 @@ function switchTab(tab) {
 }
 
 function showAlert(msg, type) {
-  const el = document.getElementById('orderAlert');
-  el.innerHTML = '<div class="alert ' + type + '">' + msg + '</div>';
+  document.getElementById('orderAlert').innerHTML = '<div class="alert ' + type + '">' + msg + '</div>';
 }
 
 function toggleFaq(el) {
   el.parentElement.classList.toggle('open');
 }
 
+// FIX: Vérifier si le Discord username est déjà pris
 async function verifyDiscordUsername(username) {
   if (!username) return { ok: false, error: "Le nom d'utilisateur Discord est requis." };
-  const res = await fetch(
-    SUPABASE_URL + '/rest/v1/users?discord_username=eq.' + encodeURIComponent(username) + '&select=id',
-    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
-  );
-  const data = await res.json();
-  if (data.length > 0) {
-    return { ok: false, error: 'Ce compte Discord est déjà lié à un compte existant.' };
+  try {
+    const res = await fetch(
+      SUPABASE_URL + '/rest/v1/users?discord_username=eq.' + encodeURIComponent(username) + '&select=id',
+      { headers: SB_HEADERS }
+    );
+    const data = await res.json();
+    if (data.length > 0) {
+      return { ok: false, error: 'Ce compte Discord est déjà lié à un compte existant.' };
+    }
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: 'Erreur de vérification Discord.' };
   }
-  return { ok: true };
 }
 
-async function doLogin() {
+// FIX: Passer l'event en paramètre pour éviter l'erreur "event is not defined"
+async function doLogin(e) {
+  const btn = e.currentTarget;
   const username = document.getElementById('loginUser').value.trim();
   const password = document.getElementById('loginPass').value;
   if (!username || !password) return showAlert('Remplissez tous les champs.', 'error');
 
-  const btn = event.currentTarget;
   btn.textContent = 'Connexion...';
   btn.disabled = true;
 
   try {
     const res = await fetch(
       SUPABASE_URL + '/rest/v1/users?username=eq.' + encodeURIComponent(username) + '&select=*',
-      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
+      { headers: SB_HEADERS }
     );
     const data = await res.json();
 
@@ -437,7 +401,7 @@ async function doLogin() {
       return;
     }
 
-    await createOrder(user.id, user.username, user.email, user.first_name + ' ' + user.last_name, '', user.discord_username);
+    await createOrder(user.id, user.username, user.email, (user.first_name || '') + ' ' + (user.last_name || ''), '', user.discord_username || '');
   } catch (err) {
     showAlert('Erreur de connexion. Réessayez.', 'error');
   }
@@ -446,7 +410,9 @@ async function doLogin() {
   btn.disabled = false;
 }
 
-async function doRegister() {
+// FIX: Passer l'event en paramètre
+async function doRegister(e) {
+  const btn = e.currentTarget;
   const first       = document.getElementById('regFirst').value.trim();
   const last        = document.getElementById('regLast').value.trim();
   const email       = document.getElementById('regEmail').value.trim();
@@ -459,12 +425,13 @@ async function doRegister() {
     return showAlert('Remplissez tous les champs obligatoires, y compris le pseudo Discord.', 'error');
   }
   if (password.length < 6) return showAlert('Mot de passe trop court (min 6 caractères).', 'error');
+  if (!email.includes('@')) return showAlert('Email invalide.', 'error');
 
-  const btn = event.currentTarget;
   btn.textContent = 'Vérification Discord...';
   btn.disabled = true;
 
   try {
+    // Vérifier unicité Discord
     const check = await verifyDiscordUsername(discordUser);
     if (!check.ok) {
       showAlert(check.error, 'error');
@@ -475,14 +442,22 @@ async function doRegister() {
 
     btn.textContent = 'Création du compte...';
 
+    // Vérifier unicité username/email
+    const existsRes = await fetch(
+      SUPABASE_URL + '/rest/v1/users?or=(username.eq.' + encodeURIComponent(username) + ',email.eq.' + encodeURIComponent(email) + ')&select=id',
+      { headers: SB_HEADERS }
+    );
+    const existsData = await existsRes.json();
+    if (existsData.length > 0) {
+      showAlert("Ce nom d'utilisateur ou email est déjà utilisé.", 'error');
+      btn.textContent = 'Créer mon compte & commander';
+      btn.disabled = false;
+      return;
+    }
+
     const res = await fetch(SUPABASE_URL + '/rest/v1/users', {
       method: 'POST',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
-      },
+      headers: { ...SB_HEADERS, 'Prefer': 'return=representation' },
       body: JSON.stringify({
         first_name: first,
         last_name: last,
@@ -498,7 +473,7 @@ async function doRegister() {
       if (err.code === '23505') {
         showAlert("Ce nom d'utilisateur ou email existe déjà.", 'error');
       } else {
-        showAlert('Erreur lors de la création du compte.', 'error');
+        showAlert('Erreur lors de la création du compte : ' + (err.message || 'inconnue'), 'error');
       }
       btn.textContent = 'Créer mon compte & commander';
       btn.disabled = false;
@@ -509,6 +484,7 @@ async function doRegister() {
     await createOrder(user.id, username, email, first + ' ' + last, desc, discordUser);
   } catch (err) {
     showAlert('Erreur inattendue. Réessayez.', 'error');
+    console.error(err);
   }
 
   btn.textContent = 'Créer mon compte & commander';
@@ -522,19 +498,14 @@ async function createOrder(userId, username, email, fullName, description, disco
   try {
     const res = await fetch(SUPABASE_URL + '/rest/v1/orders', {
       method: 'POST',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
-      },
+      headers: { ...SB_HEADERS, 'Prefer': 'return=representation' },
       body: JSON.stringify({
         user_id: userId,
         plan: currentPlan,
         price: parseInt(currentPrice),
         status: 'pending',
         description: description,
-        client_name: fullName,
+        client_name: fullName.trim(),
         client_email: email,
         client_username: username,
         discord_username: discordUsername
@@ -542,39 +513,43 @@ async function createOrder(userId, username, email, fullName, description, disco
     });
 
     if (!res.ok) {
-      showAlert('Erreur lors de la commande.', 'error');
+      const errData = await res.json();
+      showAlert('Erreur lors de la commande : ' + (errData.message || 'inconnue'), 'error');
       return;
     }
 
     const [order] = await res.json();
 
-    // Notify Discord bot via webhook table
+    // Notifier le bot Discord
     await fetch(SUPABASE_URL + '/rest/v1/discord_notifications', {
       method: 'POST',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_KEY,
-        'Content-Type': 'application/json'
-      },
+      headers: SB_HEADERS,
       body: JSON.stringify({ type: 'order', order_id: order.id, processed: false })
     });
 
-    // Save session
+    // Sauvegarder la session
     localStorage.setItem('ml_user', JSON.stringify({
       id: userId,
       username: username,
       email: email,
-      fullName: fullName
+      fullName: fullName.trim(),
+      discordUsername: discordUsername
     }));
 
     closeOrder();
-    showAlert('Commande passée avec succès ! Vous allez recevoir un message Discord.', 'success');
+    // Afficher un message de succès global
+    const alertBox = document.createElement('div');
+    alertBox.className = 'alert success';
+    alertBox.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;padding:16px 24px;border-radius:12px;font-weight:600;background:#166534;border:1px solid #22c55e;color:#dcfce7;';
+    alertBox.textContent = '✅ Commande passée avec succès ! Vous allez recevoir un DM Discord.';
+    document.body.appendChild(alertBox);
+    setTimeout(() => alertBox.remove(), 5000);
 
   } catch (err) {
     showAlert('Erreur lors de la commande. Réessayez.', 'error');
+    console.error(err);
   }
 }
 </script>
-
 </body>
 </html>
