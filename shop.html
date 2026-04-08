@@ -102,6 +102,17 @@
     }
     .discord-hint .dc-icon { font-size: 1rem; min-width: 18px; }
 
+    /* ── FIX MODAL SCROLL ── */
+    .modal-overlay {
+      align-items: flex-start !important;
+      overflow-y: auto !important;
+      padding: 40px 16px !important;
+    }
+    .modal {
+      margin: auto;
+      max-height: none !important;
+    }
+
     @media(max-width: 900px) {
       .pricing-grid { grid-template-columns: 1fr; }
       .pricing-card.featured { transform: none; }
@@ -328,7 +339,7 @@
     <div class="footer-col">
       <h4>Contact</h4>
       <ul>
-        <li><a href="mailto:contact@ml-devlopping.fr">contact@ml-devlopping.fr</a></li>
+        <li><a href="/cdn-cgi/l/email-protection#8be8e4e5ffeae8ffcbe6e7a6efeefde7e4fbfbe2e5eca5edf9"><span class="__cf_email__" data-cfemail="d1b2bebfa5b0b2a591bcbdfcb5b4a7bdbea1a1b8bfb6ffb7a3">[email&#160;protected]</span></a></li>
         <li><a href="https://ml-devlopping.fr">www.ml-devlopping.fr</a></li>
       </ul>
     </div>
@@ -339,7 +350,7 @@
   </div>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const SUPABASE_URL = 'https://gktawbaposndfxijkxdk.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrdGF3YmFwb3NuZGZ4aWpreGRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwNzUyNDUsImV4cCI6MjA3OTY1MTI0NX0.tY-CHuyb2zr9s6hlGkwmrdTvg920VVNghI9S45CjwKk';
 
@@ -510,10 +521,3 @@ async function createOrder(userId, username, email, fullName, description = '', 
   localStorage.setItem('ml_user', JSON.stringify({
     id: userId, username, email, fullName
   }));
-
-  showAlert('✅ Commande passée ! Vérifiez vos DM Discord pour le récapitulatif. Vous pouvez fermer cette fenêtre.', 'success');
-  setTimeout(() => { closeOrder(); window.location.href = 'order-confirm.html'; }, 2800);
-}
-</script>
-</body>
-</html>
